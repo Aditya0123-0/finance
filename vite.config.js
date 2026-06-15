@@ -2,7 +2,8 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { readFileSync } from 'fs';
 
-const repositoryName = 'taxfiler-global';
+// Default repository name (fallback to package name later)
+let repositoryName = 'taxfiler-global';
 
 // Read package.json without using import assertions (avoids older Node issues)
 let pkg = {};
@@ -15,7 +16,7 @@ try {
 }
 
 const homepage = pkg.homepage?.trim() || '';
-const homepagePath = homepage ? new URL(homepage, 'https://aditya0123-0.github.io/finance/').pathname.replace(/\/$/, '/') : '';
+const homepagePath = homepage ? new URL(homepage, 'https://example.com').pathname.replace(/\/$/, '/') + '/' : '';
 const isExplicitGitHubPages = process.env.GITHUB_PAGES === 'true';
 const isGitHubPages = isExplicitGitHubPages || Boolean(homepagePath);
 
@@ -23,7 +24,7 @@ const isGitHubPages = isExplicitGitHubPages || Boolean(homepagePath);
 if (isExplicitGitHubPages) {
   if (!homepage) {
     throw new Error(
-      'GitHub Pages deployment requires package.json homepage to be set to https://aditya0123-0.github.io/finance/.'
+      'GitHub Pages deployment requires package.json homepage to be set to https://<username>.github.io/<repo>/. Please update package.json homepage.'
     );
   }
   if (homepage.includes('USERNAME.github.io')) {
@@ -31,10 +32,12 @@ if (isExplicitGitHubPages) {
       'Please replace USERNAME in package.json homepage with your GitHub username before deploying to GitHub Pages.'
     );
   }
-  if (!homepagePath.endsWith(`/${repositoryName}/`)) {
-    throw new Error(
-      `The homepage path must end with /${repositoryName}/ when deploying to GitHub Pages. Found: ${homepage}`
-    );
+  // Derive repository name from homepage if available
+  try {
+    const parts = homepagePath.split('/').filter(Boolean);
+    if (parts.length > 0) repositoryName = parts[parts.length - 1];
+  } catch (e) {
+    // ignore
   }
 } else {
   // Non-fatal: warn if homepage still has placeholder; fallback to repo base
@@ -45,7 +48,10 @@ if (isExplicitGitHubPages) {
   }
 }
 
-const base = isGitHubPages ? (homepagePath || `/${repositoryName}/`) : '/';
+// If homepagePath provided, use it; otherwise fallback to `/${repositoryName}/` when deploying to GH Pages
+const base = isGitHubPages
+  ? (homepagePath || `/${pkg.name || repositoryName}/`)
+  : '/';
 
 export default defineConfig({
   plugins: [react()],
