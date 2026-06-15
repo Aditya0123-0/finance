@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "homepage": "https://Aditya0123-0.github.io/finance/",
+  "homepage": "https://Aditya0123-0.github.io/finance",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
