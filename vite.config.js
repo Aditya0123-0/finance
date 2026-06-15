@@ -15,7 +15,7 @@ try {
 }
 
 const homepage = pkg.homepage?.trim() || '';
-const homepagePath = homepage ? new URL(homepage, 'https://example.com').pathname.replace(/\/$/, '/') : '';
+const homepagePath = homepage ? new URL(homepage, 'https://aditya0123-0.github.io/finance/').pathname.replace(/\/$/, '/') : '';
 const isExplicitGitHubPages = process.env.GITHUB_PAGES === 'true';
 const isGitHubPages = isExplicitGitHubPages || Boolean(homepagePath);
 
@@ -23,7 +23,7 @@ const isGitHubPages = isExplicitGitHubPages || Boolean(homepagePath);
 if (isExplicitGitHubPages) {
   if (!homepage) {
     throw new Error(
-      'GitHub Pages deployment requires package.json homepage to be set to https://<username>.github.io/taxfiler-global/.'
+      'GitHub Pages deployment requires package.json homepage to be set to https://aditya0123-0.github.io/finance/.'
     );
   }
   if (homepage.includes('USERNAME.github.io')) {
