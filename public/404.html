@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaxFiler Global</title>
+    <script>
+      const path = window.location.pathname;
+      const repo = '/taxfiler-global';
+      const normalized = path.endsWith('/') ? path : `${path}/`;
+
+      if (normalized === `${repo}/`) {
+        window.location.replace(`${repo}/#/`);
+      } else if (normalized.startsWith(`${repo}/`)) {
+        window.location.replace(`${repo}/#/${normalized.slice(repo.length + 1)}`);
+      } else {
+        window.location.replace(`/#${path}`);
+      }
+    </script>
+  </head>
+  <body></body>
+</html>

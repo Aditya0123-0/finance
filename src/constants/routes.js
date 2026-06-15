@@ -1,0 +1,15 @@
+export const ROUTES = {
+  HOME: '/',
+  SERVICES: '/services',
+  US_INDIVIDUAL_TAX: '/us-individual-tax',
+  US_BUSINESS_TAX: '/us-business-tax',
+  ACCOUNTANTS_CPA: '/accountants-cpa',
+  SERVICE_DETAILS: '/services/:serviceSlug',
+  CONTACT: '/contact',
+  REGISTER: '/register',
+  LOGIN: '/login',
+  REFUND_STATUS: '/refund-status',
+  REFER_EARN: '/refer-earn',
+  PRIVACY_POLICY: '/privacy-policy',
+  TERMS: '/terms',
+};

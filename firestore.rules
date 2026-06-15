@@ -1,0 +1,119 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /services/{serviceId} {
+      allow read: if resource.data.isActive == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /faqs/{faqId} {
+      allow read: if resource.data.isActive == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /testimonials/{testimonialId} {
+      allow read: if resource.data.isActive == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /announcements/{announcementId} {
+      allow read: if resource.data.isActive == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /siteSettings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /legalPages/{pageId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /seoPages/{pageId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow create: if isOwner(userId)
+        && request.resource.data.role == 'client';
+      allow read, update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /contactSubmissions/{submissionId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /serviceRequests/{requestId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow read, update: if isOwner(resource.data.userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /refundStatusRequests/{requestId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow read, update: if isOwner(resource.data.userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /refundStatus/{id} {
+      // Allow unauthenticated list queries only when searching with the exact combination
+      // of email, phone, and referenceNumber. This prevents brute-force scraping.
+      allow list: if (
+        request.query.filters.email == resource.data.email 
+        && request.query.filters.phone == resource.data.phone
+        && request.query.filters.referenceNumber == resource.data.referenceNumber
+      ) || isAdmin();
+      
+      // Allow single document fetches for authenticated owners or admins
+      allow get: if (
+        signedIn() && (
+          resource.data.email == request.auth.token.email ||
+          resource.data.userId == request.auth.uid
+        )
+      ) || isAdmin();
+
+      // Only administrators can create or update refund status tracking records
+      allow write: if isAdmin();
+    }
+
+    match /referrals/{referralId} {
+      allow create: if signedIn()
+        && request.resource.data.referrerUserId == request.auth.uid;
+      allow read, update: if isOwner(resource.data.referrerUserId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /documents/{documentId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow read, update: if isOwner(resource.data.userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
